@@ -2,11 +2,11 @@ import streamlit as st
 from openai import OpenAI
 import time
 
-
+st.set_page_config(layout="wide")
 client = OpenAI(api_key=st.secrets.openai.api_key)
 thread_id = st.secrets.openai.thread_id
 assistant_id = st.secrets.openai.assistant_id
-initial_thread_messages = client.beta.threads.messages.list(thread_id=thread_id)
+initial_thread_messages = client.beta.threads.messages.list(thread_id=thread_id, order="asc")
 
 
 
@@ -22,6 +22,9 @@ with chat_container:
 
 if prompt := st.chat_input("Enter your question here..."):
     new_message = client.beta.threads.messages.create(role="user", thread_id=thread_id, content=prompt)
+    with chat_container:
+        with st.chat_message("user"):
+            st.markdown(prompt)
     run = client.beta.threads.runs.create(thread_id=thread_id, assistant_id=assistant_id)
     while run.status != "completed":
         time.sleep(2)
